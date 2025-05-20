@@ -1,0 +1,129 @@
+/dts-v1/; /* means that the file's content are in version of the DTS syntax */
+
+/ {	/* root */
+	/* compatible = "manufacture, model" */
+	// compatible = "blaze,qemu-board";
+	// model = "" define by yourself
+	// reg -->
+	#address-cells = <0x2>; 
+	#size-cells = <0x2>;
+	//compatible = "blaze,riscv-quard-star";
+	//model = "qemu-board";
+	compatible = "riscv-virtio";
+	model = "riscv-virtio,qemu";
+	reserved-memory {/* FIXME:  */
+	    #address-cells = <0x00000002>;
+	    #size-cells = <0x00000002>;
+	    ranges;
+	    mmode_resv1@80020000 {
+		reg = <0x00000000 0x80020000 0x00000000 0x00020000>;
+	    };
+	    mmode_resv0@80000000 {
+		reg = <0x00000000 0x80000000 0x00000000 0x00020000>;
+	    };
+	};
+
+	flash@20000000 {
+		compatible = "cfi-flash", "jedec-flash";
+		reg = <0x0 0x20000000 0x0 0x02000000>;
+		// ranges is about mapping < sub-address, parent-address, address-length >
+		bank-width = <4>;
+			//device-width = <2>; /* FIXME:  */
+	};
+
+	/* pass args for linux or u-boot*/
+	chosen {
+		bootargs="console=ttyS0 $mtdparts root=/dev/mtd2 rw rootfstype=jffs2";
+		//stdout-path="/soc/uart0";
+		stdout-path = "/soc/uart@10000000";
+
+	};
+	memory@80000000 {
+		device_type = "memory";
+		// addr: 0x80000000
+		// size: 0x40000000
+		reg = <0x0 0x80000000 0x0 0x40000000>;
+	};
+
+	/* one riscv64-core */
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <10000000>;
+
+		cpu@0{
+			reg = <0x0>;
+			device_type = "cpu";
+			phandle=<0x1>;/* FIXME:  */
+			compatible = "riscv";
+			status = "okay";
+			riscv,isa = "rv64imafdcsuh";
+			mmu-type = "riscv,sv48";
+
+			interrupt-controller{
+				phandle=<0x2>;/* FIXME:  */
+				#interrupt-cells=<0x1>;
+				interrupt-controllers;
+				compatible="riscv,cpu-intc";
+			};
+		};
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <0x00000001>;
+				};
+			};
+		};
+
+	};
+	soc {
+		#address-cells = <0x2>; 
+		#size-cells = <0x2>;
+		compatible = "simple-bus";
+		ranges; ///* FIXME:  */
+		uart@10000000{
+			interrupts = <0xa>;
+			clock-frequency = <0x384000>;
+			//interrupt-parent = <&plic>;
+			interrupt-parent = <0x3>;
+			reg = <0x0 0x10000000 0x0 0x100>;
+			compatible = "ns16550a";
+		};
+
+		rtc@101000{
+			interrupts = <0xb>;
+			reg = <0x0 0x101000 0x0 0x1000>;
+			compatible = "google,goldfish-rtc";
+			//interrupt-parent = <&plic>;
+			interrupt-parent = <0x3>;
+		};
+
+		plic@c000000 {
+			phandle = <0x3>;
+			riscv,ndev = <0x35>;
+
+			reg = <0x00000000 0x0c000000 0x00000000 0x00600000>;
+			//interrupts-extended = <&inc0 0xa>, <&inc0 0xb>;/* FIXME:  0xffffffff */
+			interrupts-extended = <0x00000002 0xffffffff 0x00000002 0x00000009>;
+			interrupt-controller;
+			//compatible = "riscv,plic0";
+			compatible = "sifive,plic-1.0.0", "riscv,plic0";
+			#interrupt-cells = <0x1>;
+			//#address-cells = <0x0>; /* FIXME:  */
+		};
+
+		clint@2000000 {
+			// format <phandle> <prop-encoded-array>
+			//interrupts-extended = <&inc0 0x3>, <&inc0 0x7>; // 0x03 software interrupt  0x07 timer interrupt
+			//reg = <0x0 0x2000000 0x0 0x10000>;
+			//compatible = "riscv,clint0";
+			interrupts-extended = <0x00000002 0x00000003 0x00000002 0x00000007>;
+			reg = <0x00000000 0x02000000 0x00000000 0x00010000>;
+			compatible = "sifive,clint0", "riscv,clint0";
+		};
+
+
+	};
+
+};

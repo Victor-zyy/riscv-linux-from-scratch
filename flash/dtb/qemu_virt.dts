@@ -1,0 +1,109 @@
+/dts-v1/; /* means that the file's content are in version of the DTS syntax */
+/{
+	#address-cells = <0x00000002>;
+	#size-cells = <0x00000002>;
+	compatible = "riscv-virtio";
+	model = "riscv-virtio,qemu";
+	reserved-memory {
+	    #address-cells = <0x00000002>;
+	    #size-cells = <0x00000002>;
+	    ranges;
+	    mmode_resv1@80020000 {
+		reg = <0x00000000 0x80020000 0x00000000 0x00020000>;
+	    };
+	    mmode_resv0@80000000 {
+		reg = <0x00000000 0x80000000 0x00000000 0x00020000>;
+	    };
+	};
+	flash@20000000 {
+		bank-width = <0x00000004>;
+		//reg = <0x00000000 0x20000000 0x00000000 0x02000000 0x00000000 0x22000000 0x00000000 0x02000000>;
+		reg = <0x0 0x20000000 0x0 0x02000000>;
+		compatible = "cfi-flash";
+	};
+	chosen {
+		bootargs = "root=/dev/vda rw console=ttyS0";
+		stdout-path = "/soc/uart@10000000";
+	};
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000 0x00000000 0x40000000>;
+	};
+	cpus {
+		#address-cells = <0x00000001>;
+		#size-cells = <0x00000000>;
+		timebase-frequency = <0x00989680>;
+		cpu@0 {
+		    phandle = <0x00000001>;
+		    device_type = "cpu";
+		    reg = <0x00000000>;
+		    status = "okay";
+		    compatible = "riscv";
+		    riscv,isa = "rv64imafdcsuh";
+		    mmu-type = "riscv,sv48";
+		    interrupt-controller {
+				#interrupt-cells = <0x00000001>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+				phandle = <0x00000002>;
+		    };
+		};
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <0x00000001>;
+				};
+			};
+		};
+	};
+
+	soc {
+	    #address-cells = <0x00000002>;
+	    #size-cells = <0x00000002>;
+	    compatible = "simple-bus";
+	    ranges;
+	    rtc@101000 {
+			interrupts = <0x0000000b>;
+			interrupt-parent = <0x00000003>;
+			reg = <0x00000000 0x00101000 0x00000000 0x00001000>;
+			compatible = "google,goldfish-rtc";
+	    };
+	    uart@10000000 {
+			interrupts = <0x0000000a>;
+			interrupt-parent = <0x00000003>;
+			clock-frequency = <0x384000>;
+			reg = <0x00000000 0x10000000 0x00000000 0x00000100>;
+			compatible = "ns16550a";
+	    };
+	    /*
+	    poweroff {
+			value = <0x00005555>;
+			offset = <0x00000000>;
+			regmap = <0x00000004>;
+			compatible = "syscon-poweroff";
+	    };
+	    reboot {
+			value = <0x00007777>;
+			offset = <0x00000000>;
+			regmap = <0x00000004>;
+			compatible = "syscon-reboot";
+	    };
+	    */
+	    plic@c000000 {
+
+			phandle = <0x00000003>;
+			riscv,ndev = <0x00000035>;
+			reg = <0x00000000 0x0c000000 0x00000000 0x00600000>;
+			interrupts-extended = <0x00000002 0xffffffff 0x00000002 0x00000009>;
+			interrupt-controller;
+			compatible = "sifive,plic-1.0.0", "riscv,plic0";
+			#interrupt-cells = <0x00000001>;
+	    };
+	    clint@2000000 {
+			interrupts-extended = <0x00000002 0x00000003 0x00000002 0x00000007>;
+			reg = <0x00000000 0x02000000 0x00000000 0x00010000>;
+			compatible = "sifive,clint0", "riscv,clint0";
+	    };
+	};
+
+};

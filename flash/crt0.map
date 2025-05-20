@@ -1,0 +1,61 @@
+
+Discarded input sections
+
+ .bss           0x0000000000000000        0x0 crt0.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+flash            0x0000000020000000 0x0000000000080000 axrl
+sram             0x0000000000008000 0x0000000000008000 axrwl
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000020000000       0x48
+ *(.text)
+ .text          0x0000000020000000       0x44 crt0.o
+                0x0000000020000000                _start
+                0x0000000020000048                . = ALIGN (0x8)
+ *fill*         0x0000000020000044        0x4 
+                0x0000000020000048                _etext = .
+                0x0000000020000048                _sidata = _etext
+                0x0000000000000048                . = SIZEOF (.text)
+
+.data           0x0000000000008000        0x0 load address 0x0000000020000048
+                0x0000000000008000                . = ALIGN (0x4)
+                0x0000000000008000                _sdata = .
+ *(.data)
+ .data          0x0000000000008000        0x0 crt0.o
+                0x0000000000008000                . = ALIGN (0x4)
+                0x0000000000008000                _edata = .
+LOAD crt0.o
+OUTPUT(crt0.elf elf64-littleriscv)
+
+.riscv.attributes
+                0x0000000000000000       0x37
+ .riscv.attributes
+                0x0000000000000000       0x37 crt0.o
+
+.debug_line     0x0000000000000000       0x98
+ .debug_line    0x0000000000000000       0x98 crt0.o
+
+.debug_line_str
+                0x0000000000000000       0x35
+ .debug_line_str
+                0x0000000000000000       0x35 crt0.o
+                                         0x3c (size before relaxing)
+
+.debug_info     0x0000000000000000       0x28
+ .debug_info    0x0000000000000000       0x28 crt0.o
+
+.debug_abbrev   0x0000000000000000       0x14
+ .debug_abbrev  0x0000000000000000       0x14 crt0.o
+
+.debug_aranges  0x0000000000000000       0x30
+ .debug_aranges
+                0x0000000000000000       0x30 crt0.o
+
+.debug_str      0x0000000000000000       0x41
+ .debug_str     0x0000000000000000       0x41 crt0.o
