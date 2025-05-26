@@ -17,6 +17,7 @@ dev_t dev = 0;
 
 /*
 ** Module init function
+*  Then use mknod to create device file.
 */
 static int __init hello_world_init(void)
 {
