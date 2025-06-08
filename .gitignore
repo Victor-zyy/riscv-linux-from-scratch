@@ -8,7 +8,8 @@
 */*.img
 */*/*.img
 */*.dtb
-*/*/Image
+*/*/*dtb
+./flash/jffs2/Image
 */*.map
 */*.elf
 

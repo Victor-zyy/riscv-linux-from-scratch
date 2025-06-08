@@ -25,15 +25,22 @@
 
 // crt0.S startup
         .section .data
+        .align  3
         .global boot_status
         .type   boot_status, %object
 boot_status:
         .word   0
 	
 	.section .text
+        .align  3
 	.globl _start
 	.type _start,@function
 _start:	
+        csrw    mip,  zero 
+        csrw    mie,   zero 
+        la      t0,     _start_hang
+        csrw    mtvec,  t0
+
 	csrr	a0, 	mhartid
         bne     a0,     zero,   wait_done
 
@@ -56,6 +63,7 @@ _start:
 	li	a1,	0x822 	//device tree address
 	slli 	a1, 	a1, 	20
 
+
         la      t0,     boot_status
         la      t1,     1
         amoadd.w    t0,     t1,     (t0) 
@@ -71,8 +79,20 @@ wait_done:
         lw      t0,     0(t0)
         beqz    t0,     wait_done
 
+	csrr	a0, 	mhartid
+	li	a1,	0x822 	//device tree address
+	slli 	a1, 	a1, 	20
+
 	li	t0,	0x800
 	slli	t0,	t0,	20
 
 	jr 	t0
+
+
+        .section .text, "ax", %progbits
+        .align  3
+        .global _start_hang
+_start_hang:
+        wfi
+        j _start_hang
 	.end

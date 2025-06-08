@@ -7,7 +7,7 @@ ROOTFS_DIR=~/repo/riscv-linux-from-scratch
 ROOTFS_FLASH_DIR=~/repo/riscv-linux-from-scratch/flash
 DTB_DIR=~/repo/riscv-linux-from-scratch/flash/dtb
 
-if [ "$1" = "debug" ]; then
+if [ "$2" = "debug" ]; then
   DEBUG="-gdb tcp::26000 -D qemu.log -S"
 fi
 SMP=1
