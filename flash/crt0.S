@@ -24,15 +24,25 @@
 .endm
 
 // crt0.S startup
+        .section .data
+        .global boot_status
+        .type   boot_status, %object
+boot_status:
+        .word   0
 	
 	.section .text
 	.globl _start
 	.type _start,@function
 _start:	
 	csrr	a0, 	mhartid
-	
+        bne     a0,     zero,   wait_done
 
-#if 1
+        la      a0,     _sidata
+        la      a1,     _sdata
+        la      a2,     _edata
+        load_data   a0, a1, a2
+        
+	
 	// load device tree 512KB
 	li 	a0, 	0x2008
 	slli 	a0, 	a0, 	16
@@ -45,11 +55,24 @@ _start:
 
 	li	a1,	0x822 	//device tree address
 	slli 	a1, 	a1, 	20
-#endif
-	csrr	a0, 	mhartid
+
+        la      t0,     boot_status
+        la      t1,     1
+        amoadd.w    t0,     t1,     (t0) 
+
 	li	t0,	0x800
 	slli	t0,	t0,	20
 
 	jr 	t0
 
+
+wait_done:
+        la      t0,     boot_status
+        lw      t0,     0(t0)
+        beqz    t0,     wait_done
+
+	li	t0,	0x800
+	slli	t0,	t0,	20
+
+	jr 	t0
 	.end

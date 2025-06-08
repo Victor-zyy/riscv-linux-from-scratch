@@ -10,12 +10,16 @@ DTB_DIR=~/repo/riscv-linux-from-scratch/flash/dtb
 if [ "$1" = "debug" ]; then
   DEBUG="-gdb tcp::26000 -D qemu.log -S"
 fi
+SMP=1
+if [ "$1" = "M" ]; then
+  SMP="4"
+fi
 
 $QEMU_DIR/qemu-system-riscv64 \
     -M virt \
     -m 1G \
     -nographic \
-    -smp 1 \
+    -smp $SMP \
     -bios $OPENSBI_DIR/fw_jump.bin \
     -serial mon:stdio \
     -kernel $UBOOT_DIR/u-boot-nodtb.bin \
